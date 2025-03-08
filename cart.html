@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Корзина</title>
+    <title>GUDGET HUB</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="css/styles.css" rel="stylesheet">
 </head>
@@ -13,14 +13,20 @@
         <nav>
             <a href="index.html" class="text-white mx-2">Главная</a>
             <a href="cart.html" class="text-white mx-2">Корзина</a>
-            <a href="register.html" class="text-white mx-2">Регистрация</a>
-            <a href="profile.html" class="text-white mx-2">Профиль</a>
+            <div id="auth-buttons">
+                <a href="login.html" class="text-white mx-2">Логин</a>
+                <a href="register.html" class="text-white mx-2">Регистрация</a>
+            </div>
+            <div id="profile-button" style="display: none;">
+                <a href="profile.html" class="text-white mx-2">Профиль</a>
+            </div>
         </nav>
+        <input type="text" id="search" placeholder="Поиск..." class="form-control my-2 w-50 mx-auto">
     </header>
 
     <div class="container my-4">
         <div id="cart-items">
-            <!-- Товары в корзине будут здесь -->
+          
         </div>
         <button class="btn btn-success mt-3" onclick="checkout()">Оформить заказ</button>
     </div>

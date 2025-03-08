@@ -3,14 +3,18 @@ document.addEventListener('DOMContentLoaded', function () {
     loadCart();
     setupFilters();
     setupSearch();
-    setupRegistration();
+    updateAuthButtons();
 });
 
 
-function loadProducts() {
+function loadProducts(filters = {}) {
     console.log("Загрузка товаров...");
 
-    fetch('php/get_products.php')
+    // Собираем параметры фильтрации
+    const params = new URLSearchParams(filters);
+
+    // Запрос к серверу с параметрами фильтрации
+    fetch(`php/get_products.php?${params}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Ошибка сети');
@@ -30,6 +34,8 @@ function loadProducts() {
                 console.error(data.error);
                 return;
             }
+
+            productsData = data;
 
             data.forEach(product => {
                 const card = `
@@ -57,6 +63,25 @@ function loadProducts() {
         .catch(error => console.error('Ошибка загрузки товаров:', error));
 }
 
+function applyFilters() {
+    const filters = {
+        brand: document.getElementById('brand').value,
+        minPrice: document.getElementById('minPrice').value,
+        maxPrice: document.getElementById('maxPrice').value,
+        os: document.getElementById('os').value,
+        storage: document.getElementById('storage').value,
+        inStock: document.getElementById('inStock').value
+    };
+
+    for (const key in filters) {
+        if (filters[key] === "") {
+            delete filters[key];
+        }
+    }
+
+    loadProducts(filters);
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     loadProducts();
 });
@@ -81,7 +106,13 @@ function addToCart(productId) {
     if (existingProduct) {
         existingProduct.quantity += parseInt(quantity);
     } else {
-        cart.push({ id: productId, name: product.name, price: product.price, quantity: parseInt(quantity) });
+        cart.push({
+            id: productId,
+            image: product.image,
+            name: product.name,
+            price: product.price,
+            quantity: parseInt(quantity)
+        });
     }
 
     localStorage.setItem('cart', JSON.stringify(cart));
@@ -89,6 +120,7 @@ function addToCart(productId) {
 }
 
 function loadCart() {
+    
     const cart = JSON.parse(localStorage.getItem('cart')) || [];
     const cartItemsContainer = document.getElementById('cart-items');
     if (cartItemsContainer) {
@@ -96,11 +128,18 @@ function loadCart() {
 
         cart.forEach(item => {
             const cartItem = `
-                <div class="cart-item">
-                    <p>Товар: ${item.name}</p>
-                    <p>Цена: ${item.price} руб.</p>
-                    <p>Количество: ${item.quantity}</p>
-                    <button class="btn btn-danger btn-sm" onclick="removeFromCart(${item.id})">Удалить</button>
+                <div class="cart-item mb-3 p-3 border rounded">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <img src="${item.image}" class="img-fluid" alt="${item.name}">
+                        </div>
+                        <div class="col-md-9">
+                            <h5>${item.name}</h5>
+                            <p>Цена: ${item.price} руб.</p>
+                            <p>Количество: ${item.quantity}</p>
+                            <button class="btn btn-danger btn-sm" onclick="removeFromCart(${item.id})">Удалить</button>
+                        </div>
+                    </div>
                 </div>
             `;
             cartItemsContainer.innerHTML += cartItem;
@@ -130,75 +169,85 @@ function setupFilters() {
 
 function setupSearch() {
     const searchInput = document.getElementById('search');
-    searchInput.addEventListener('input', loadProducts);
-}
-
-function setupRegistration() {
-    const registerForm = document.getElementById('register-form');
-    if (registerForm) {
-        registerForm.addEventListener('submit', function (e) {
-            e.preventDefault();
-            const name = document.getElementById('name').value;
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-
-            localStorage.setItem('user', JSON.stringify({ name, email, password }));
-            alert('Регистрация успешна!');
-            window.location.href = 'profile.html';
+    if (searchInput) {
+        searchInput.addEventListener('input', function () {
+            const searchTerm = searchInput.value.toLowerCase();
+            loadProducts({ search: searchTerm });
         });
-    }
-
-    const profileInfo = document.getElementById('profile-info');
-    if (profileInfo) {
-        const user = JSON.parse(localStorage.getItem('user'));
-        if (user) {
-            profileInfo.innerHTML = `
-                <p>Имя: ${user.name}</p>
-                <p>Email: ${user.email}</p>
-            `;
-        } else {
-            profileInfo.innerHTML = '<p>Пользователь не найден</p>';
-        }
+    } else {
+        console.error('Элемент #search не найден!');
     }
 }
 
-//Registration
-function registerUser() {
-    const name = document.getElementById('name').value;
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-
-    fetch('php/register.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password })
-    })
-        .then(response => response.text())
-        .then(data => {
-            alert(data);
-            if (data.includes("успешно")) {
-                window.location.href = 'profile.html';
-            }
-        })
-        .catch(error => console.error('Ошибка регистрации:', error));
+function updateAuthButtons() {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user) {
+        // Пользователь вошёл в аккаунт
+        document.getElementById('auth-buttons').style.display = 'none'; // Скрываем кнопки логина и регистрации
+        document.getElementById('profile-button').style.display = 'block'; // Показываем кнопку профиля
+    } else {
+        // Пользователь не вошёл в аккаунт
+        document.getElementById('auth-buttons').style.display = 'block'; // Показываем кнопки логина и регистрации
+        document.getElementById('profile-button').style.display = 'none'; // Скрываем кнопку профиля
+    }
 }
 
-//Login
-function loginUser() {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
+// Логин
+document.getElementById('loginForm')?.addEventListener('submit', function (e) {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
 
     fetch('php/login.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
     })
-        .then(response => response.text())
+        .then(response => response.json())
         .then(data => {
-            alert(data);
-            if (data.includes("Вход выполнен")) {
-                window.location.href = 'profile.html';
+            if (data.message) {
+                localStorage.setItem('user', JSON.stringify(data.user));
+                updateAuthButtons(); // Обновляем кнопки после успешного входа
+                window.location.href = 'index.html'; // Перенаправляем на главную страницу
+            } else {
+                alert(data.error);
             }
         })
-        .catch(error => console.error('Ошибка входа:', error));
+        .catch(error => console.error('Ошибка:', error));
+});
+
+// Регистрация
+document.getElementById('registerForm')?.addEventListener('submit', function (e) {
+    e.preventDefault(); // Предотвращаем стандартное поведение формы
+
+    const name = document.getElementById('registerName').value;
+    const email = document.getElementById('registerEmail').value;
+    const password = document.getElementById('registerPassword').value;
+
+    fetch('php/register.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password })
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                alert('Регистрация успешна!');
+                window.location.href = 'login.html'; // Перенаправляем на страницу логина
+            } else {
+                alert(data.error);
+            }
+        })
+        .catch(error => console.error('Ошибка:', error));
+});
+
+// Выход
+function logout() {
+    fetch('php/logout.php')
+        .then(() => {
+            localStorage.removeItem('user');
+            updateAuthButtons(); // Обновляем кнопки после выхода
+            window.location.href = 'index.html'; // Перенаправляем на главную страницу
+        })
+        .catch(error => console.error('Ошибка:', error));
 }

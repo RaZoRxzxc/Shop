@@ -3,18 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Магазин смартфонов</title>
+    <title>GUDGET HUB</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="css/styles.css" rel="stylesheet">
 </head>
 <body>
     <header class="bg-success text-white text-center py-3">
-        <h1>Магазин смартфонов</h1>
+        <h1>GUDGET HUB</h1>
         <nav>
             <a href="index.html" class="text-white mx-2">Главная</a>
             <a href="cart.html" class="text-white mx-2">Корзина</a>
-            <a href="register.html" class="text-white mx-2">Регистрация</a>
-            <a href="profile.html" class="text-white mx-2">Профиль</a>
+            <div id="auth-buttons">
+                <a href="login.html" class="text-white mx-2">Логин</a>
+                <a href="register.html" class="text-white mx-2">Регистрация</a>
+            </div>
+            <div id="profile-button" style="display: none;">
+                <a href="profile.html" class="text-white mx-2">Профиль</a>
+            </div>
         </nav>
         <input type="text" id="search" placeholder="Поиск..." class="form-control my-2 w-50 mx-auto">
     </header>
@@ -24,53 +29,58 @@
             <div class="col-md-3 p-4 bg-light">
                 <h3>Фильтры</h3>
                 <div class="form-group">
-                    <label>Наличие в магазине:</label>
-                    <select class="form-control" id="availability">
-                        <option value="all">Все</option>
-                        <option value="in-stock">В наличии</option>
-                        <option value="out-of-stock">Нет в наличии</option>
+                    <label>Производитель:</label>
+                    <select class="form-control" id="brand">
+                        <option value="">Все</option>
+                        <option value="Apple">Apple</option>
+                        <option value="Samsung">Samsung</option>
+                        <option value="Xiaomi">Xiaomi</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Цена:</label>
-                    <input type="range" id="price" min="0" max="100000" step="1000" class="form-control">
-                    <span id="price-value">50000 руб.</span>
+                    <label>Цена от:</label>
+                    <input type="number" class="form-control" id="minPrice" placeholder="Минимальная цена">
                 </div>
                 <div class="form-group">
-                    <label>Производитель:</label>
-                    <select class="form-control" id="brand">
-                        <option value="all">Все</option>
-                        <option value="apple">Apple</option>
-                        <option value="samsung">Samsung</option>
-                        <option value="xiaomi">Xiaomi</option>
+                    <label>Цена до:</label>
+                    <input type="number" class="form-control" id="maxPrice" placeholder="Максимальная цена">
+                </div>
+                <div class="form-group">
+                    <label>Операционная система:</label>
+                    <select class="form-control" id="os">
+                        <option value="">Все</option>
+                        <option value="iOS">iOS</option>
+                        <option value="Android">Android</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label>Объем памяти:</label>
                     <select class="form-control" id="storage">
-                        <option value="all">Все</option>
+                        <option value="">Все</option>
                         <option value="64">64 ГБ</option>
                         <option value="128">128 ГБ</option>
                         <option value="256">256 ГБ</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Операционная система:</label>
-                    <select class="form-control" id="os">
-                        <option value="all">Все</option>
-                        <option value="ios">iOS</option>
-                        <option value="android">Android</option>
+                    <label>Наличие в магазине:</label>
+                    <select class="form-control" id="inStock">
+                        <option value="">Все</option>
+                        <option value="1">В наличии</option>
+                        <option value="0">Нет в наличии</option>
                     </select>
                 </div>
+                <button class="btn btn-success btn-block" onclick="applyFilters()">Применить фильтры</button>
             </div>
 
-          <div class="col-md-9 p-4">
-            <div class="row" id="products">
-                <!-- Карточки товаров будут здесь -->
+            <div class="col-md-9 p-4">
+                <div class="row" id="products">
+                    <!-- Карточки товаров будут здесь -->
+                </div>
             </div>
-          </div>
         </div>
     </div>
+
 
     <script src="js/script.js"></script>
 </body>

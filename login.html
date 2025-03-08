@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GUDGET HUB</title>
+    <title>Вход в аккаунт</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="css/styles.css" rel="stylesheet">
 </head>
 <body>
     <header class="bg-success text-white text-center py-3">
-        <h1>Регистрация</h1>
+        <h1>Вход в аккаунт</h1>
         <nav>
             <a href="index.html" class="text-white mx-2">Главная</a>
             <a href="cart.html" class="text-white mx-2">Корзина</a>
@@ -24,46 +24,48 @@
     </header>
 
     <div class="container my-4">
-        <form id="registerForm">
-            <div class="form-group">
-                <label>Имя:</label>
-                <input type="text" class="form-control" id="registerName" required>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <h2 class="text-center">Вход</h2>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label>Email:</label>
+                        <input type="email" class="form-control" id="loginEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Пароль:</label>
+                        <input type="password" class="form-control" id="loginPassword" required>
+                    </div>
+                    <button type="submit" class="btn btn-success btn-block">Войти</button>
+                </form>
+                <p class="text-center mt-3">
+                    Нет аккаунта? <a href="register.html">Зарегистрируйтесь</a>
+                </p>
             </div>
-            <div class="form-group">
-                <label>Email:</label>
-                <input type="email" class="form-control" id="registerEmail" required>
-            </div>
-            <div class="form-group">
-                <label>Пароль:</label>
-                <input type="password" class="form-control" id="registerPassword" required>
-            </div>
-            <button type="submit" class="btn btn-success">Зарегистрироваться</button>
-        </form>
+        </div>
     </div>
     
-
-
     <script src="js/script.js">
          document.addEventListener('DOMContentLoaded', function () {
-        const registerForm = document.getElementById('registerForm');
+        const loginForm = document.getElementById('loginForm');
 
-        registerForm.addEventListener('submit', function (e) {
+        loginForm.addEventListener('submit', function (e) {
             e.preventDefault(); // Отключаем стандартное поведение формы
 
-            const name = document.getElementById('registerName').value;
-            const email = document.getElementById('registerEmail').value;
-            const password = document.getElementById('registerPassword').value;
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
 
-            fetch('php/register.php', {
+            fetch('php/login.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, email, password })
+                body: JSON.stringify({ email, password })
             })
                 .then(response => response.json())
                 .then(data => {
                     if (data.message) {
                         alert(data.message);
-                        window.location.href = 'login.html'; // Перенаправляем на страницу логина
+                        localStorage.setItem('user', JSON.stringify(data.user));
+                        window.location.href = 'index.html'; // Перенаправляем на главную страницу
                     } else {
                         alert(data.error);
                     }
