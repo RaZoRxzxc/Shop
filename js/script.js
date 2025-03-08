@@ -10,7 +10,6 @@ document.addEventListener('DOMContentLoaded', function () {
 function loadProducts(filters = {}) {
     console.log("Загрузка товаров...");
 
-    // Собираем параметры фильтрации
     const params = new URLSearchParams(filters);
 
     // Запрос к серверу с параметрами фильтрации
