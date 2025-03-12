@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ панель</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/styles.css" rel="stylesheet">
+</head>
+<body>
+
+    <header class="bg-success text-white text-center py-3">
+        <h1>Админ панель</h1>
+        <nav>
+            <a href="index.html" class="text-white mx-2">Главная</a>
+            <a href="admin.html" class="text-white mx-2">Админ</a>
+            <button class="btn btn-danger" onclick="logout()">Выйти</button>
+        </nav>
+    </header>
+
+    <div class="container my-4">
+        <h2>Управление товарами</h2>
+        <button class="btn btn-primary mb-3" onclick="openAddProductModal()">Добавить товар</button>
+        <div id="products-table">
+           
+        </div>
+    </div>
+
+ 
+    <div id="addProductModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAddProductModal()">&times;</span>
+            <h2>Добавить товар</h2>
+            <form id="addProductForm">
+                <div class="form-group">
+                    <label>Название:</label>
+                    <input type="text" class="form-control" id="productName" required>
+                </div>
+                <div class="form-group">
+                    <label>Цена:</label>
+                    <input type="number" class="form-control" id="productPrice" required>
+                </div>
+                <div class="form-group">
+                    <label>Бренд:</label>
+                    <input type="text" class="form-control" id="productBrand" required>
+                </div>
+                <div class="form-group">
+                    <label>Память (ГБ):</label>
+                    <input type="number" class="form-control" id="productStorage" required>
+                </div>
+                <div class="form-group">
+                    <label>Операционная система:</label>
+                    <input type="text" class="form-control" id="productOS" required>
+                </div>
+                <div class="form-group">
+                    <label>Изображение (URL):</label>
+                    <input type="text" class="form-control" id="productImage" required>
+                </div>
+                <div class="form-group">
+                    <label>В наличии:</label>
+                    <select class="form-control" id="productInStock">
+                        <option value="1">Да</option>
+                        <option value="0">Нет</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-success">Добавить</button>
+            </form>
+        </div>
+    </div>
+
+   
+    <div id="editProductModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditProductModal()">&times;</span>
+            <h2>Редактировать товар</h2>
+            <form id="editProductForm">
+               <input type="hidden" id="editProductId"> 
+               <div class="form-group">
+                    <label>Название:</label>
+                    <input type="text" class="form-control" id="editProductName" required>
+               </div>
+                <div class="form-group">
+                    <label>Цена:</label>
+                   <input type="number" class="form-control" id="editProductPrice" required>
+                </div>
+                <div class="form-group">
+                    <label>Бренд:</label>
+                   <input type="text" class="form-control" id="editProductBrand" required>
+                </div>
+               <div class="form-group">
+                   <label>Память (ГБ):</label>
+                   <input type="number" class="form-control" id="editProductStorage" required>
+                </div>
+                 <div class="form-group">
+                 <label>Операционная система:</label>
+                  <input type="text" class="form-control" id="editProductOS" required>
+              </div>
+               <div class="form-group">
+                  <label>Изображение (URL):</label>
+                   <input type="text" class="form-control" id="editProductImage" required>
+               </div>
+              <div class="form-group">
+                   <label>В наличии:</label>
+                    <select class="form-control" id="editProductInStock">
+                       <option value="1">Да</option>
+                        <option value="0">Нет</option>
+                    </select>
+               </div>
+               <button type="submit" class="btn btn-success">Сохранить</button>
+          </form>
+    </div>
+</div>
+    <script src="js/admin.js"></script>
+    <script>
+
+                // Проверка авторизации при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function () {
+            checkAdminAuth();
+        });
+
+        // Функция для проверки авторизации администратора
+        function checkAdminAuth() {
+            fetch('php/check_admin_auth.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        // Если не авторизован, перенаправляем на страницу входа
+                        window.location.href = 'admin_login.html';
+                    } else {
+                        // Если авторизован, загружаем товары
+                        loadProducts();
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка при проверке авторизации:', error);
+                    window.location.href = 'admin_login.html'; // Перенаправляем в случае ошибки
+                });
+        }
+
+        function logout() {
+            fetch('php/admin_logout.php')
+                .then(() => {
+                    window.location.href = 'admin_login.html';
+                })
+                .catch(error => console.error('Ошибка:', error));
+        }
+    </script>
+</body>
+</html>
