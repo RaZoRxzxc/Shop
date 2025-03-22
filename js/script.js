@@ -154,9 +154,28 @@ function removeFromCart(productId) {
 }
 
 function checkout() {
-    localStorage.removeItem('cart');
-    alert('Заказ оформлен!');
-    loadCart();
+    const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+
+    if (cartItems.length === 0) {
+        alert('Корзина пуста');
+        return;
+    }
+
+    fetch('php/checkout.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cart: cartItems })
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                alert(data.message);
+                localStorage.removeItem('cart'); // Очищаем корзину
+                window.location.href = 'index.html'; // Перенаправляем на главную страницу
+            } else {
+                alert(data.error);
+            }
+        })
 }
 
 function setupFilters() {

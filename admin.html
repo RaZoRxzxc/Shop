@@ -110,12 +110,54 @@
           </form>
     </div>
 </div>
+
+<div class="container my-4">
+    <h2>Статистика купленных товаров</h2>
+    <table class="table table-bordered" id="order-statistics">
+        <thead>
+            <tr>
+                <th>Товар</th>
+                <th>Количество</th>
+            </tr>
+        </thead>
+        <tbody>
+           
+        </tbody>
+    </table>
+</div>
     <script src="js/admin.js"></script>
     <script>
+
+
+        function loadOrderStatistics() {
+            fetch('php/get_order_statistics.php')
+        .then(response => response.json())
+        .then(data => {
+            const tableBody = document.querySelector('#order-statistics tbody');
+            tableBody.innerHTML = ''; // Очищаем таблицу
+
+            if (data.error) {
+                console.error(data.error);
+                return;
+            }
+
+            // Заполняем таблицу данными
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.name}</td>
+                    <td>${item.total_quantity}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        })
+        .catch(error => console.error('Ошибка загрузки статистики:', error));
+        }
 
                 // Проверка авторизации при загрузке страницы
         document.addEventListener('DOMContentLoaded', function () {
             checkAdminAuth();
+            loadOrderStatistics();
         });
 
         // Функция для проверки авторизации администратора
