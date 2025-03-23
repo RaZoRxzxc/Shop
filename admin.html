@@ -113,17 +113,7 @@
 
 <div class="container my-4">
     <h2>Статистика купленных товаров</h2>
-    <table class="table table-bordered" id="order-statistics">
-        <thead>
-            <tr>
-                <th>Товар</th>
-                <th>Количество</th>
-            </tr>
-        </thead>
-        <tbody>
-           
-        </tbody>
-    </table>
+    <canvas id="orderStatisticsChart"></canvas> <!-- Оставлен только график -->
 </div>
     <script src="js/admin.js"></script>
     <script>
@@ -131,28 +121,39 @@
 
         function loadOrderStatistics() {
             fetch('php/get_order_statistics.php')
-        .then(response => response.json())
-        .then(data => {
-            const tableBody = document.querySelector('#order-statistics tbody');
-            tableBody.innerHTML = ''; // Очищаем таблицу
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        console.error(data.error);
+                        return;
+                    }
 
-            if (data.error) {
-                console.error(data.error);
-                return;
-            }
-
-            // Заполняем таблицу данными
-            data.forEach(item => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${item.name}</td>
-                    <td>${item.total_quantity}</td>
-                `;
-                tableBody.appendChild(row);
-            });
-        })
-        .catch(error => console.error('Ошибка загрузки статистики:', error));
+                    // Создаем график
+                    const ctx = document.getElementById('orderStatisticsChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'bar', // Тип графика (столбчатая диаграмма)
+                        data: {
+                            labels: data.labels, // Названия товаров
+                            datasets: [{
+                                label: 'Количество купленных товаров',
+                                data: data.data, // Данные о количестве
+                                backgroundColor: 'rgba(75, 192, 192, 0.2)', // Цвет столбцов
+                                borderColor: 'rgba(75, 192, 192, 1)', // Цвет границ
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true // Ось Y начинается с 0
+                                }
+                            }
+                        }
+                    });
+                })
+                .catch(error => console.error('Ошибка загрузки статистики:', error));
         }
+        
 
                 // Проверка авторизации при загрузке страницы
         document.addEventListener('DOMContentLoaded', function () {
@@ -187,5 +188,7 @@
                 .catch(error => console.error('Ошибка:', error));
         }
     </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>
